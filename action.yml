@@ -1,0 +1,47 @@
+name: 'Snorkell Documentation generated Action'
+description: 'Use this GitHub Action to create documentation pr of your recent main branch merge.'
+author: 'snorkell'
+inputs:
+  owner:
+    required: true
+    description: 'The owner of repository.'
+  repo:
+    required: true
+    description: 'The name of repository.'
+  github_file_path:
+    required: true
+    description: 'The file we are generating documentation of.'
+  main_branch:
+    required: true
+    description: 'master or main branch.'
+  bearer_token:
+    required: true
+    description: 'github auth token'
+  file_type:
+    required: true
+    description: 'file type we are generating documentaion of'
+  
+outputs: {}
+
+runs:
+  using: 'composite'
+
+  steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.x  # Replace with your desired Python version
+
+    - name: Install Dependencies
+      run: |
+        pip install requests httpx asyncio
+
+    - name: Run Script # Replace with the actual path to your Python script
+      run: python docgen/doc_gen.py  ${{ inputs.owner }} ${{ inputs.repo }} ${{ inputs.github_file_path }} ${{ inputs.main_branch }} ${{ inputs.bearer_token }} ${{ inputs.file_type }} 
+      
+branding:
+  icon: 'upload-cloud'
+  color: 'blue'
