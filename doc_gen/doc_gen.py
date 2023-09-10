@@ -6,6 +6,7 @@ import random
 import string
 import os
 import sys
+import json
 
 def generate_random_string(length):
     characters = string.ascii_letters + string.digits 
@@ -47,7 +48,7 @@ if __name__ == "__main__":
     github_file_url = f'https://api.github.com/repos/{OWNER}/{REPO}/contents/{github_file_path}'
     # print(github_file_url)
     github_file_response = requests.get(github_file_url, headers=HEADERS).json()
-    # print(f'response {json.dumps(github_file_response)}')
+    print(f'response {json.dumps(github_file_response)}')
     # file_content = base64.b64decode(response['content']).decode('utf-8')
     github_file_content = base64.b64decode(github_file_response['content'])
     github_file_sha = github_file_response['sha']

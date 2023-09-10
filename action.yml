@@ -36,11 +36,13 @@ runs:
         python-version: 3.x  # Replace with your desired Python version
 
     - name: Install Dependencies
+      shell: bash
       run: |
         pip install requests httpx asyncio
 
     - name: Run Script # Replace with the actual path to your Python script
-      run: python docgen/doc_gen.py  ${{ inputs.owner }} ${{ inputs.repo }} ${{ inputs.github_file_path }} ${{ inputs.main_branch }} ${{ inputs.bearer_token }} ${{ inputs.file_type }} 
+      shell: bash
+      run: python ${{ github.action_path }}/doc_gen/doc_gen.py  ${{ inputs.owner }} ${{ inputs.repo }} ${{ inputs.github_file_path }} ${{ inputs.main_branch }} ${{ inputs.bearer_token }} ${{ inputs.file_type }} 
       
 branding:
   icon: 'upload-cloud'
