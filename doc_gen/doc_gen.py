@@ -37,7 +37,7 @@ async def download_streamed_data(url, input_data, SNORKELL_HEADERS, output_data)
 
         output_data.append(response_stream)
 
-async def improvise_single_file_documentation_commit(OWNER, REPO, GIHUB_HEADERS, SNORKELL_HEADERS, new_branch_name, file_path, file_type):
+async def improvise_single_file_documentation_commit(OWNER, REPO, MAIN_BRANCH, GIHUB_HEADERS, SNORKELL_HEADERS, new_branch_name_list,new_branch_commit_id_list, file_path, file_type):
     # fetch provided file from github
     ##############################################################################################################
     github_file_url = f'https://api.github.com/repos/{OWNER}/{REPO}/contents/{file_path}'
@@ -76,7 +76,7 @@ async def improvise_single_file_documentation_commit(OWNER, REPO, GIHUB_HEADERS,
     # print(f'snorkell_api_response_encode_string {snorkell_api_response_encode_string}')
     ##############################################################################################################
 
-    if new_branch_name is None:
+    if not new_branch_name_list:
         # get correct sha of from branch
         ##############################################################################################################
         main_branch_url = f'https://api.github.com/repos/{OWNER}/{REPO}/git/matching-refs/heads/{MAIN_BRANCH}'
@@ -89,15 +89,17 @@ async def improvise_single_file_documentation_commit(OWNER, REPO, GIHUB_HEADERS,
         # Create a new branch based on the main branch
         ##############################################################################################################
         randon_varchar = generate_random_string(15)
-        new_branch_name = f'auto_documentation_{randon_varchar}'
+        new_branch_name_list.append(f'auto_documentation_{randon_varchar}')
         # print(f'new_branch_name {new_branch_name}')
         new_branch_url = f'https://api.github.com/repos/{OWNER}/{REPO}/git/refs'
         new_branch_data = {
-            'ref': f'refs/heads/{new_branch_name}',
+            'ref': f'refs/heads/{new_branch_name_list[0]}',
             'sha': main_branch_sha
         }
         new_branch_response = requests.post(new_branch_url, json=new_branch_data, headers=GIHUB_HEADERS).json()
         # print(f'new_branch_response {new_branch_response}')
+        new_branch_commit_id_list.append(new_branch_response['object']['sha'])
+        # print(f'new_branch_response {new_branch_commit_id_list}')
         ##############################################################################################################
 
     # Commit generated new doc
@@ -107,7 +109,7 @@ async def improvise_single_file_documentation_commit(OWNER, REPO, GIHUB_HEADERS,
         'message': f'Documenting file {file_path} of content type {file_type}',
         "content": f'{snorkell_api_response_encode_string}',
         "sha": f'{github_file_sha}',
-        "branch": f'{new_branch_name}'
+        "branch": f'{new_branch_name_list[0]}'
     }
     # print(f'git_commit_data {json.dumps(git_commit_data)}')
     commit_response = requests.put(git_commit_url, json=git_commit_data, headers=GIHUB_HEADERS).json()
@@ -125,12 +127,13 @@ async def improvise_pr_with_documentation():
     OWNER = GIT_OWNER_REPO_PARTS[0]
     REPO = GIT_OWNER_REPO_PARTS[1]
     
+    SNORKELL_DOCUMENTATION_PREFIX = '[doc-snorkell:'
     GIHUB_HEADERS = {
         'Authorization': f'Bearer {GIHUB_BEARER_TOKEN}',
     }
 
     SNORKELL_HEADERS = {
-        'Authorization': f'Bearer {GIHUB_BEARER_TOKEN}',
+        'Authorization': f'Bearer {SNORKELL_BEARER_TOKEN}',
     }
 
     github_files = []
@@ -142,6 +145,7 @@ async def improvise_pr_with_documentation():
     github_latest_commit_response = requests.get(github_latest_commit_url, headers=GIHUB_HEADERS).json()
     print(f'github_latest_commit_response {json.dumps(github_latest_commit_response)}')
     github_latest_commit_files = github_latest_commit_response['files']
+    github_latest_commit_name = github_latest_commit_response['commit']['message']
     # print(f'github_latest_commit_files {json.dumps(github_latest_commit_files)}')
 
     for github_latest_commit_file in github_latest_commit_files:
@@ -156,56 +160,59 @@ async def improvise_pr_with_documentation():
 
         github_files.append((github_latest_commit_file_name,github_latest_commit_file_type))
         
+    if not github_latest_commit_name.startswith(SNORKELL_DOCUMENTATION_PREFIX):
+        # # get correct sha of from branch
+        # ##############################################################################################################
+        # main_branch_url = f'https://api.github.com/repos/{OWNER}/{REPO}/git/matching-refs/heads/{MAIN_BRANCH}'
+        # main_branch_response = requests.get(main_branch_url, headers=GIHUB_HEADERS).json()
+        # # print(f'main_branch_response {main_branch_response}')
+        # main_branch_sha = main_branch_response[0]['object']['sha']
+        # # print(f'main_branch_sha {main_branch_sha}')
+        # ##############################################################################################################
 
-    # # get correct sha of from branch
-    # ##############################################################################################################
-    # main_branch_url = f'https://api.github.com/repos/{OWNER}/{REPO}/git/matching-refs/heads/{MAIN_BRANCH}'
-    # main_branch_response = requests.get(main_branch_url, headers=GIHUB_HEADERS).json()
-    # # print(f'main_branch_response {main_branch_response}')
-    # main_branch_sha = main_branch_response[0]['object']['sha']
-    # # print(f'main_branch_sha {main_branch_sha}')
-    # ##############################################################################################################
+        # # Create a new branch based on the main branch
+        # ##############################################################################################################
+        # randon_varchar = generate_random_string(15)
+        # new_branch_name = f'auto_documentation_{randon_varchar}'
+        # # print(f'new_branch_name {new_branch_name}')
+        # new_branch_url = f'https://api.github.com/repos/{OWNER}/{REPO}/git/refs'
+        # new_branch_data = {
+        #     'ref': f'refs/heads/{new_branch_name}',
+        #     'sha': main_branch_sha
+        # }
+        # new_branch_response = requests.post(new_branch_url, json=new_branch_data, headers=GIHUB_HEADERS).json()
+        # # print(f'new_branch_response {new_branch_response}')
+        # ##############################################################################################################
 
-    # # Create a new branch based on the main branch
-    # ##############################################################################################################
-    # randon_varchar = generate_random_string(15)
-    # new_branch_name = f'auto_documentation_{randon_varchar}'
-    # # print(f'new_branch_name {new_branch_name}')
-    # new_branch_url = f'https://api.github.com/repos/{OWNER}/{REPO}/git/refs'
-    # new_branch_data = {
-    #     'ref': f'refs/heads/{new_branch_name}',
-    #     'sha': main_branch_sha
-    # }
-    # new_branch_response = requests.post(new_branch_url, json=new_branch_data, headers=GIHUB_HEADERS).json()
-    # # print(f'new_branch_response {new_branch_response}')
-    # ##############################################################################################################
-
-    ##############################################################################################################
-    improvise_files_tasks = []
-    new_branch_name = None
-    for file in github_files:
-        # print(f"file_path{file[0]} file_type {file[1]}")
-        file_path = file[0]
-        file_type = file[1]
-        improvise_files_task = asyncio.create_task(improvise_single_file_documentation_commit(OWNER,REPO,GIHUB_HEADERS,SNORKELL_HEADERS,new_branch_name,file_path,file_type))
-        improvise_files_tasks.append(improvise_files_task)
-    
-    await asyncio.gather(*improvise_files_tasks)
-    ##############################################################################################################
-    
-    # create a new PR
-    ##############################################################################################################
-    pr_url = f'https://api.github.com/repos/{OWNER}/{REPO}/pulls'
-    pr_data = {
-        'title': 'AI generated Documentation',
-        'body': 'Automated PR of AI generated Documentation',
-        'head': f'{new_branch_name}',
-        'base': f'{MAIN_BRANCH}',
-    }
-    # print(f'pr_data {json.dumps(pr_data)}')
-    pr_response = requests.post(pr_url, json=pr_data, headers=GIHUB_HEADERS).json()
-    # print(f'pr_response {pr_response}')
-    ##############################################################################################################
+        ##############################################################################################################
+        improvise_files_tasks = []
+        new_branch_commit_id_list = []
+        new_branch_name = []
+        for file in github_files:
+            # print(f"file_path{file[0]} file_type {file[1]}")
+            file_path = file[0]
+            file_type = file[1]
+            improvise_files_task = asyncio.create_task(improvise_single_file_documentation_commit(OWNER,REPO,MAIN_BRANCH,GIHUB_HEADERS,SNORKELL_HEADERS,new_branch_name,new_branch_commit_id_list,file_path,file_type))
+            improvise_files_tasks.append(improvise_files_task)
+        
+        await asyncio.gather(*improvise_files_tasks)
+        ##############################################################################################################
+        
+        # create a new PR
+        ##############################################################################################################
+        new_branch_commit_id = {new_branch_commit_id_list[0][:6]}
+        print()
+        pr_url = f'https://api.github.com/repos/{OWNER}/{REPO}/pulls'
+        pr_data = {
+            'title': f'{SNORKELL_DOCUMENTATION_PREFIX} {new_branch_commit_id}]: AI generated documentation by Snorkell.ai',
+            'body': 'Automated PR of AI generated Documentation',
+            'head': f'{new_branch_name[0]}',
+            'base': f'{MAIN_BRANCH}',
+        }
+        # print(f'pr_data {json.dumps(pr_data)}')
+        pr_response = requests.post(pr_url, json=pr_data, headers=GIHUB_HEADERS).json()
+        # print(f'pr_response {pr_response}')
+        ##############################################################################################################
 
 
 if __name__ == "__main__":    
