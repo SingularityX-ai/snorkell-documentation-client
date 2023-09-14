@@ -76,6 +76,30 @@ async def improvise_single_file_documentation_commit(OWNER, REPO, GIHUB_HEADERS,
     # print(f'snorkell_api_response_encode_string {snorkell_api_response_encode_string}')
     ##############################################################################################################
 
+    if new_branch_name is None:
+        # get correct sha of from branch
+        ##############################################################################################################
+        main_branch_url = f'https://api.github.com/repos/{OWNER}/{REPO}/git/matching-refs/heads/{MAIN_BRANCH}'
+        main_branch_response = requests.get(main_branch_url, headers=GIHUB_HEADERS).json()
+        # print(f'main_branch_response {main_branch_response}')
+        main_branch_sha = main_branch_response[0]['object']['sha']
+        # print(f'main_branch_sha {main_branch_sha}')
+        ##############################################################################################################
+
+        # Create a new branch based on the main branch
+        ##############################################################################################################
+        randon_varchar = generate_random_string(15)
+        new_branch_name = f'auto_documentation_{randon_varchar}'
+        # print(f'new_branch_name {new_branch_name}')
+        new_branch_url = f'https://api.github.com/repos/{OWNER}/{REPO}/git/refs'
+        new_branch_data = {
+            'ref': f'refs/heads/{new_branch_name}',
+            'sha': main_branch_sha
+        }
+        new_branch_response = requests.post(new_branch_url, json=new_branch_data, headers=GIHUB_HEADERS).json()
+        # print(f'new_branch_response {new_branch_response}')
+        ##############################################################################################################
+
     # Commit generated new doc
     ##############################################################################################################
     git_commit_url = github_file_url
@@ -133,31 +157,32 @@ async def improvise_pr_with_documentation():
         github_files.append((github_latest_commit_file_name,github_latest_commit_file_type))
         
 
-    # get correct sha of from branch
-    ##############################################################################################################
-    main_branch_url = f'https://api.github.com/repos/{OWNER}/{REPO}/git/matching-refs/heads/{MAIN_BRANCH}'
-    main_branch_response = requests.get(main_branch_url, headers=GIHUB_HEADERS).json()
-    # print(f'main_branch_response {main_branch_response}')
-    main_branch_sha = main_branch_response[0]['object']['sha']
-    # print(f'main_branch_sha {main_branch_sha}')
-    ##############################################################################################################
+    # # get correct sha of from branch
+    # ##############################################################################################################
+    # main_branch_url = f'https://api.github.com/repos/{OWNER}/{REPO}/git/matching-refs/heads/{MAIN_BRANCH}'
+    # main_branch_response = requests.get(main_branch_url, headers=GIHUB_HEADERS).json()
+    # # print(f'main_branch_response {main_branch_response}')
+    # main_branch_sha = main_branch_response[0]['object']['sha']
+    # # print(f'main_branch_sha {main_branch_sha}')
+    # ##############################################################################################################
 
-    # Create a new branch based on the main branch
-    ##############################################################################################################
-    randon_varchar = generate_random_string(15)
-    new_branch_name = f'auto_documentation_{randon_varchar}'
-    # print(f'new_branch_name {new_branch_name}')
-    new_branch_url = f'https://api.github.com/repos/{OWNER}/{REPO}/git/refs'
-    new_branch_data = {
-        'ref': f'refs/heads/{new_branch_name}',
-        'sha': main_branch_sha
-    }
-    new_branch_response = requests.post(new_branch_url, json=new_branch_data, headers=GIHUB_HEADERS).json()
-    # print(f'new_branch_response {new_branch_response}')
-    ##############################################################################################################
+    # # Create a new branch based on the main branch
+    # ##############################################################################################################
+    # randon_varchar = generate_random_string(15)
+    # new_branch_name = f'auto_documentation_{randon_varchar}'
+    # # print(f'new_branch_name {new_branch_name}')
+    # new_branch_url = f'https://api.github.com/repos/{OWNER}/{REPO}/git/refs'
+    # new_branch_data = {
+    #     'ref': f'refs/heads/{new_branch_name}',
+    #     'sha': main_branch_sha
+    # }
+    # new_branch_response = requests.post(new_branch_url, json=new_branch_data, headers=GIHUB_HEADERS).json()
+    # # print(f'new_branch_response {new_branch_response}')
+    # ##############################################################################################################
 
     ##############################################################################################################
     improvise_files_tasks = []
+    new_branch_name = None
     for file in github_files:
         # print(f"file_path{file[0]} file_type {file[1]}")
         file_path = file[0]
