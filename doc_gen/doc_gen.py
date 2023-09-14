@@ -21,10 +21,10 @@ def generate_random_string(length):
     random_string = ''.join(random.choice(characters) for _ in range(length))
     return random_string
 
-async def download_streamed_data(url, input_data, output_data):
+async def download_streamed_data(url, input_data, SNORKELL_HEADERS, output_data):
     async with httpx.AsyncClient() as client:
         response_stream = ''
-        response = await client.post(url, json=input_data)
+        response = await client.post(url, json=input_data, headers=SNORKELL_HEADERS)
 
         if response.status_code == 200:
             async for chunk in response.aiter_bytes():
@@ -37,12 +37,12 @@ async def download_streamed_data(url, input_data, output_data):
 
         output_data.append(response_stream)
 
-async def improvise_single_file_documentation_commit(OWNER, REPO, HEADERS, new_branch_name, file_path, file_type):
+async def improvise_single_file_documentation_commit(OWNER, REPO, GIHUB_HEADERS, SNORKELL_HEADERS, new_branch_name, file_path, file_type):
     # fetch provided file from github
     ##############################################################################################################
     github_file_url = f'https://api.github.com/repos/{OWNER}/{REPO}/contents/{file_path}'
     # print(github_file_url)
-    github_file_response = requests.get(github_file_url, headers=HEADERS).json()
+    github_file_response = requests.get(github_file_url, headers=GIHUB_HEADERS).json()
     # print(f'github_file_response {json.dumps(github_file_response)}')
     # file_content = base64.b64decode(response['content']).decode('utf-8')
     github_file_content = base64.b64decode(github_file_response['content'])
@@ -53,9 +53,7 @@ async def improvise_single_file_documentation_commit(OWNER, REPO, HEADERS, new_b
     # call snorkell document generator 
     ##############################################################################################################
     snorkell_api_response = ""
-    snorkell_api_url = "https://production-gateway.snorkell.ai/api/gen-documentation-stream"
-
-    # snorkell_api_url = "https://localhost:8888/api/gen-documentation-stream"
+    snorkell_api_url = "https://production-gateway.snorkell.ai/api/v1/generate/documentation"
 
     snorkell_api_data = {
         'content': f'{github_file_content}',
@@ -65,7 +63,7 @@ async def improvise_single_file_documentation_commit(OWNER, REPO, HEADERS, new_b
 
     snorkell_api_response_data =[]
     streaming_tasks = []
-    streaming_task = asyncio.create_task(download_streamed_data(snorkell_api_url, snorkell_api_data, snorkell_api_response_data))
+    streaming_task = asyncio.create_task(download_streamed_data(snorkell_api_url, snorkell_api_data, SNORKELL_HEADERS, snorkell_api_response_data))
     streaming_tasks.append(streaming_task)
     # await asyncio.run(download_streamed_data(snorkell_api_url, snorkell_api_data, snorkell_api_response_data))
     await asyncio.gather(*streaming_tasks)
@@ -88,7 +86,7 @@ async def improvise_single_file_documentation_commit(OWNER, REPO, HEADERS, new_b
         "branch": f'{new_branch_name}'
     }
     # print(f'git_commit_data {json.dumps(git_commit_data)}')
-    commit_response = requests.put(git_commit_url, json=git_commit_data, headers=HEADERS).json()
+    commit_response = requests.put(git_commit_url, json=git_commit_data, headers=GIHUB_HEADERS).json()
     # print(f'commit_response {commit_response}')
     ##############################################################################################################
 
@@ -96,14 +94,19 @@ async def improvise_single_file_documentation_commit(OWNER, REPO, HEADERS, new_b
 async def improvise_pr_with_documentation():
     GIT_OWNER_REPO = os.getenv("GIT_REPO")
     MAIN_BRANCH = os.getenv("MAIN_BRANCH")
-    BEARER_TOKEN = os.getenv("BEARER_TOKEN")
+    GIHUB_BEARER_TOKEN = os.getenv("GIHUB_BEARER_TOKEN")
+    SNORKELL_BEARER_TOKEN = os.getenv("SNORKELL_BEARER_TOKEN")
 
     GIT_OWNER_REPO_PARTS = GIT_OWNER_REPO.split('/')    
     OWNER = GIT_OWNER_REPO_PARTS[0]
     REPO = GIT_OWNER_REPO_PARTS[1]
     
-    HEADERS = {
-        'Authorization': f'Bearer {BEARER_TOKEN}',
+    GIHUB_HEADERS = {
+        'Authorization': f'Bearer {GIHUB_BEARER_TOKEN}',
+    }
+
+    SNORKELL_HEADERS = {
+        'Authorization': f'Bearer {GIHUB_BEARER_TOKEN}',
     }
 
     github_files = []
@@ -112,7 +115,7 @@ async def improvise_pr_with_documentation():
     ##############################################################################################################
     github_latest_commit_url = f'https://api.github.com/repos/{OWNER}/{REPO}/commits/{MAIN_BRANCH}'
     print(f'github_latest_commit_url {github_latest_commit_url}')
-    github_latest_commit_response = requests.get(github_latest_commit_url, headers=HEADERS).json()
+    github_latest_commit_response = requests.get(github_latest_commit_url, headers=GIHUB_HEADERS).json()
     print(f'github_latest_commit_response {json.dumps(github_latest_commit_response)}')
     github_latest_commit_files = github_latest_commit_response['files']
     # print(f'github_latest_commit_files {json.dumps(github_latest_commit_files)}')
@@ -133,7 +136,7 @@ async def improvise_pr_with_documentation():
     # get correct sha of from branch
     ##############################################################################################################
     main_branch_url = f'https://api.github.com/repos/{OWNER}/{REPO}/git/matching-refs/heads/{MAIN_BRANCH}'
-    main_branch_response = requests.get(main_branch_url, headers=HEADERS).json()
+    main_branch_response = requests.get(main_branch_url, headers=GIHUB_HEADERS).json()
     # print(f'main_branch_response {main_branch_response}')
     main_branch_sha = main_branch_response[0]['object']['sha']
     # print(f'main_branch_sha {main_branch_sha}')
@@ -149,7 +152,7 @@ async def improvise_pr_with_documentation():
         'ref': f'refs/heads/{new_branch_name}',
         'sha': main_branch_sha
     }
-    new_branch_response = requests.post(new_branch_url, json=new_branch_data, headers=HEADERS).json()
+    new_branch_response = requests.post(new_branch_url, json=new_branch_data, headers=GIHUB_HEADERS).json()
     # print(f'new_branch_response {new_branch_response}')
     ##############################################################################################################
 
@@ -159,7 +162,7 @@ async def improvise_pr_with_documentation():
         # print(f"file_path{file[0]} file_type {file[1]}")
         file_path = file[0]
         file_type = file[1]
-        improvise_files_task = asyncio.create_task(improvise_single_file_documentation_commit(OWNER,REPO,HEADERS,new_branch_name,file_path,file_type))
+        improvise_files_task = asyncio.create_task(improvise_single_file_documentation_commit(OWNER,REPO,GIHUB_HEADERS,SNORKELL_HEADERS,new_branch_name,file_path,file_type))
         improvise_files_tasks.append(improvise_files_task)
     
     await asyncio.gather(*improvise_files_tasks)
@@ -175,7 +178,7 @@ async def improvise_pr_with_documentation():
         'base': f'{MAIN_BRANCH}',
     }
     # print(f'pr_data {json.dumps(pr_data)}')
-    pr_response = requests.post(pr_url, json=pr_data, headers=HEADERS).json()
+    pr_response = requests.post(pr_url, json=pr_data, headers=GIHUB_HEADERS).json()
     # print(f'pr_response {pr_response}')
     ##############################################################################################################
 
