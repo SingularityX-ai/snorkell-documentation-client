@@ -1,26 +1,7 @@
-name: 'Snorkell Documentation generated Action'
-description: 'Use this GitHub Action to create documentation pr of your recent main branch merge.'
-author: 'snorkell'
-inputs:
-  owner:
-    required: true
-    description: 'The owner of repository.'
-  repo:
-    required: true
-    description: 'The name of repository.'
-  github_file_path:
-    required: true
-    description: 'The file we are generating documentation of.'
-  main_branch:
-    required: true
-    description: 'master or main branch.'
-  bearer_token:
-    required: true
-    description: 'github auth token'
-  file_type:
-    required: true
-    description: 'file type we are generating documentaion of'
-  
+name: 'Snorkell Documentation Generator'
+description: 'Use this GitHub Action to create documentation PR of your recent main branch merge.'
+author: 'snorkella.ai'
+
 outputs: {}
 
 runs:
@@ -29,20 +10,31 @@ runs:
   steps:
     - name: Checkout Repository
       uses: actions/checkout@v2
+    
+    # - name: Get latest commit ID and message
+    #   run: |
+    #     COMMIT_DATA=$(curl --silent -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ inputs.owner }}/${{ inputs.repo }}/commits/${{ inputs.main_branch }}")
+    #     echo "LATEST_COMMIT_ID=$(echo "$COMMIT_DATA" | jq -r '.sha')" >> $GITHUB_ENV
+    #     echo "LATEST_COMMIT_MESSAGE=$(echo "$COMMIT_DATA" | jq -r '.commit.message')" >> $GITHUB_ENV
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.x  # Replace with your desired Python version
+    # - name: Set up Python
+    #   uses: actions/setup-python@v2
+    #   with:
+    #     python-version: 3.x
 
-    - name: Install Dependencies
+    # - name: Install Dependencies
+    #   shell: bash
+    #   run: |
+    #     pip install requests httpx asyncio
+
+    - name: Run Script
       shell: bash
       run: |
-        pip install requests httpx asyncio
+        BRANCH_NAME=${GITHUB_REF#refs/heads/}
+        curl -X POST -H 'api-key: ${{ secrets.SNORKELL_API_KEY }}' -H 'Content-Type: application/json' \
+        -d '{"installation_id": ${{ secrets.SNORKELL_API_KEY }}, "full_repo_name": "${{ github.repository }}", "base_branch": "${{ BRANCH_NAME }}", "commit_sha": "${{ github.sha }}", "commit_message": "${{ github.event.head_commit.message }}"}' \
+        http://localhost:8000/api/app/github/generate/documentation
 
-    - name: Run Script # Replace with the actual path to your Python script
-      shell: bash
-      run: python ${{ github.action_path }}/doc_gen/doc_gen.py  ${{ inputs.owner }} ${{ inputs.repo }} ${{ inputs.github_file_path }} ${{ inputs.main_branch }} ${{ inputs.bearer_token }} ${{ inputs.file_type }} 
       
 branding:
   icon: 'upload-cloud'
