@@ -23,11 +23,12 @@ async def check_documentation_generation_status(headers, data):
             print(message)
             if message != old_status:
                 old_status = message
-            
+            print("waiting for seconds", count*2)
             count += 1
             if count > 360: # 15 minutes
                 print("Documentation generation timed out")
                 return
+            print("additional check for complete log", message, message=="COMPLETE")
             if message == "COMPLETE":
                 print("Documentation generation completed")
                 return
