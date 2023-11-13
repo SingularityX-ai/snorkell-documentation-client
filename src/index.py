@@ -43,6 +43,12 @@ async def check_documentation_generation_status(headers, data):
 
 async def main():
 
+    required_env_vars = ['SNORKELL_API_KEY', 'SNORKELL_CLIENT_ID', 'GITHUB_REPOSITORY', 'BRANCH_NAME', 'GITHUB_SHA', 'COMMIT_MSG']
+    missing_vars = [var for var in required_env_vars if not os.getenv(var)]
+
+    if missing_vars:
+        raise ValueError(f"Missing required environment variables: {', '.join(missing_vars)}")
+
     headers = {
         'api-key': os.getenv('SNORKELL_API_KEY'),  # Replace with your API key
         'Content-Type': 'application/json'

@@ -2,6 +2,14 @@ name: 'Snorkell DocGen Client'
 description: 'Use this GitHub Action to create documentation PR of your recent main branch merge.'
 author: 'snorkell.ai'
 
+inputs:
+  client_id:
+    description: 'Client ID for Snorkell'
+    required: true
+  api_key:
+    description: 'API Key for Snorkell'
+    required: true
+
 outputs: {}
 
 runs:
@@ -13,21 +21,22 @@ runs:
       with:
         python-version: 3.x
 
-    - name: Install Dependencies
+    - name: Prepare Commit Message
+      id: prep
       shell: bash
       run: |
-        pip install aiohttp asyncio
         ESCAPED_COMMIT_MSG=$(printf '%s\n' "${{ github.event.head_commit.message }}" | jq -R -s -c .)
+        echo "::set-output name=escaped_commit_msg::$ESCAPED_COMMIT_MSG"
 
     - name: Run Script
       shell: bash
       env:
-        SNORKELL_CLIENT_ID: ${{ secrets.SNORKELL_CLIENT_ID }}
-        SNORKELL_API_KEY: ${{ secrets.SNORKELL_API_KEY }}
+        SNORKELL_CLIENT_ID: ${{ inputs.client_id }}
+        SNORKELL_API_KEY: ${{ inputs.api_key }}
         GITHUB_REPOSITORY: ${{ github.repository }}
         BRANCH_NAME: ${{ github.ref }}
         GITHUB_SHA: ${{ github.sha }}
-        COMMIT_MSG: ${{ ESCAPED_COMMIT_MSG }}
+        COMMIT_MSG: ${{ steps.prep.outputs.escaped_commit_msg }}
 
       run: |
         python src/index.py
