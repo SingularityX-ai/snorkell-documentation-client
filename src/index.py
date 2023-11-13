@@ -4,6 +4,7 @@ import time
 
 def initiate_documentation_generation(headers, data):
     url = "https://production-gateway.snorkell.ai/api/app/github/generate/documentation"
+    print("Making api call to initiate documentation generation")
     response = requests.post(url, headers=headers, json=data, timeout=600)
     if response.status_code == 200:
         print(response.text)
@@ -42,10 +43,17 @@ def check_documentation_generation_status(headers, data):
 def main():
     required_env_vars = ['SNORKELL_API_KEY', 'SNORKELL_CLIENT_ID', 'GITHUB_REPOSITORY', 'BRANCH_NAME', 'GITHUB_SHA', 'COMMIT_MSG']
     missing_vars = [var for var in required_env_vars if not os.getenv(var)]
+    print("Validating the inputs")
 
     if missing_vars:
         raise ValueError(f"Missing required environment variables: {', '.join(missing_vars)}")
 
+    print("All inputs validated")
+    
+    print("Repo Name: ", os.getenv('GITHUB_REPOSITORY'))
+    print("Branch Name: ", os.getenv('BRANCH_NAME'))
+    print("Commit SHA: ", os.getenv('GITHUB_SHA'))
+    print("Commit Message: ", os.getenv('COMMIT_MSG'))
     headers = {
         'api-key': os.getenv('SNORKELL_API_KEY'),  # Replace with your API key
         'Content-Type': 'application/json'
@@ -59,8 +67,9 @@ def main():
     }
     
     try:
+        print("Initiating documentation generation, this may take a few minutes")
         initiate_documentation_generation(headers, data)
-        check_documentation_generation_status(headers, data)
+        # check_documentation_generation_status(headers, data)
     except requests.exceptions.Timeout:
         print("Request timed out")
     except Exception as e:
