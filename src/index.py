@@ -28,12 +28,12 @@ async def check_documentation_generation_status(headers, data):
             if count > 360: # 15 minutes
                 print("Documentation generation timed out")
                 return
-            print("additional check for complete log", message, message=="COMPLETE")
-            if message.strip().upper() == "COMPLETE":
+            print("additional check for complete log", message.strip().upper(), message.strip().upper()=="COMPLETE")
+            if message.strip().upper().startswith("COMPLETE"):
                 print("Documentation generation completed")
                 return
             
-            if message.strip().upper() == "FAILED":
+            if message.strip().upper().startswith("COMPLETE"):
                 print("Documentation generation FAILED")
                 # add alert to slack
                 return
