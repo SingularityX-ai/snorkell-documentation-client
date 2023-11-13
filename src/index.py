@@ -28,7 +28,7 @@ def check_documentation_generation_status(headers, data):
             if count > 360: # 15 minutes
                 print("Documentation generation timed out")
                 return
-            if message == "COMPLETED":
+            if message == "COMPLETE":
                 print("Documentation generation completed")
                 return
             
