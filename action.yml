@@ -45,7 +45,7 @@ runs:
         COMMIT_MSG: ${{ steps.prep.outputs.escaped_commit_msg }}
 
       run: |
-        python run_doc_gen.py
+        python -u run_doc_gen.py
          
 branding:
   icon: 'upload-cloud'
