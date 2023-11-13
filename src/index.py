@@ -19,7 +19,8 @@ async def check_documentation_generation_status(headers, data):
     while True:
         response = requests.post(url, headers=headers, json=data, timeout=600)
         if response.status_code == 200:
-            message = response.text
+            message = response.json()
+            print("Documentation generation status: ",  repr(message))
             print(message)
             if message != old_status:
                 old_status = message
@@ -29,11 +30,11 @@ async def check_documentation_generation_status(headers, data):
                 print("Documentation generation timed out")
                 return
             print("additional check for complete log", repr(message.strip().upper()), message.strip().upper()=="COMPLETE", type(message.strip().upper()))
-            if message.strip().upper().startswith("COMPLETE"):
+            if message.strip().upper() == "COMPLETE":
                 print("Documentation generation completed")
                 return
             
-            if message.strip().upper().startswith("COMPLETE"):
+            if message.strip().upper() == "FAILED":
                 print("Documentation generation FAILED")
                 # add alert to slack
                 return
