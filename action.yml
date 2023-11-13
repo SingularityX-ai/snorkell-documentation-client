@@ -9,7 +9,9 @@ inputs:
   api_key:
     description: 'API Key for Snorkell'
     required: true
-
+  branch_name:
+    description: 'Base Branch for the PR'
+    required: true
 outputs: {}
 
 runs:
@@ -40,7 +42,7 @@ runs:
         SNORKELL_CLIENT_ID: ${{ inputs.client_id }}
         SNORKELL_API_KEY: ${{ inputs.api_key }}
         GITHUB_REPOSITORY: ${{ github.repository }}
-        BRANCH_NAME: ${{ github.ref }}
+        BRANCH_NAME: ${{ inputs.branch_name }}
         GITHUB_SHA: ${{ github.sha }}
         COMMIT_MSG: ${{ steps.prep.outputs.escaped_commit_msg }}
 
