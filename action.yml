@@ -24,6 +24,7 @@ runs:
     - name: Download Script
       run: |
         curl -o src/index.py https://raw.githubusercontent.com/SingularityX-ai/snorkell-documentation-client/v0.1.15-alpha/src/index.py
+      shell: bash
 
     - name: Prepare Commit Message
       id: prep
