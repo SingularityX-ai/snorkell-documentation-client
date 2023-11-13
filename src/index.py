@@ -28,7 +28,7 @@ async def check_documentation_generation_status(headers, data):
             if count > 360: # 15 minutes
                 print("Documentation generation timed out")
                 return
-            print("additional check for complete log", message.strip().upper(), message.strip().upper()=="COMPLETE")
+            print("additional check for complete log", repr(message.strip().upper()), message.strip().upper()=="COMPLETE", type(message.strip().upper()))
             if message.strip().upper().startswith("COMPLETE"):
                 print("Documentation generation completed")
                 return
