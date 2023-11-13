@@ -1,4 +1,4 @@
-name: 'Snorkell Documentation Generator'
+name: 'Snorkell DocGen Client'
 description: 'Use this GitHub Action to create documentation PR of your recent main branch merge.'
 author: 'snorkella.ai'
 
