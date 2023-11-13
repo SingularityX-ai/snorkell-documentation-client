@@ -16,12 +16,14 @@ runs:
   using: 'composite'
 
   steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
         python-version: 3.x
+
+    - name: Download Script
+      run: |
+        curl -o src/index.py https://raw.githubusercontent.com/SingularityX-ai/snorkell-documentation-client/v0.1.15-alpha/src/index.py
 
     - name: Prepare Commit Message
       id: prep
