@@ -29,11 +29,11 @@ async def check_documentation_generation_status(headers, data):
                 print("Documentation generation timed out")
                 return
             print("additional check for complete log", message, message=="COMPLETE")
-            if message == "COMPLETE":
+            if message.strip().upper() == "COMPLETE":
                 print("Documentation generation completed")
                 return
             
-            if message == "FAILED":
+            if message.strip().upper() == "FAILED":
                 print("Documentation generation FAILED")
                 # add alert to slack
                 return
