@@ -1,8 +1,8 @@
 import os
 import requests
-import time
+import asyncio
 
-def initiate_documentation_generation(headers, data):
+async def initiate_documentation_generation(headers, data):
     url = "https://production-gateway.snorkell.ai/api/app/github/generate/documentation"
     print("Making api call to initiate documentation generation")
     response = requests.post(url, headers=headers, json=data, timeout=600)
@@ -12,7 +12,7 @@ def initiate_documentation_generation(headers, data):
         print(f"Request failed: {response.status_code}")
         print(response.text)
 
-def check_documentation_generation_status(headers, data):
+async def check_documentation_generation_status(headers, data):
     url = "https://production-gateway.snorkell.ai/api/app/github/generate/documentation/status"
     old_status = ""
     count = 0
@@ -42,9 +42,9 @@ def check_documentation_generation_status(headers, data):
             print("Fetching documentation generation status failed")
             # send slack message to server that documentation generation failed
             return
-        time.sleep(2)
+        await asyncio.sleep(2)  # Non-blocking sleep
 
-def main():
+async def main():
     required_env_vars = ['SNORKELL_API_KEY', 'SNORKELL_CLIENT_ID', 'GITHUB_REPOSITORY', 'BRANCH_NAME', 'GITHUB_SHA', 'COMMIT_MSG']
     missing_vars = [var for var in required_env_vars if not os.getenv(var)]
     print("Validating the inputs")
@@ -72,12 +72,12 @@ def main():
     
     try:
         print("Initiating documentation generation, this may take a few minutes")
-        initiate_documentation_generation(headers, data)
-        check_documentation_generation_status(headers, data)
+        await initiate_documentation_generation(headers, data)
+        await check_documentation_generation_status(headers, data)
     except requests.exceptions.Timeout:
         print("Request timed out")
     except Exception as e:
         print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

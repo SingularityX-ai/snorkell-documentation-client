@@ -24,7 +24,7 @@ runs:
     - name: Download Script and Install Dependencies
       run: |
         curl -o run_doc_gen.py https://raw.githubusercontent.com/SingularityX-ai/snorkell-documentation-client/main/src/index.py
-        pip install requests requests
+        pip install requests requests asyncio
       shell: bash
 
     - name: Prepare Commit Message
