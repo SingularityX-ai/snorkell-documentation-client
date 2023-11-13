@@ -20,17 +20,21 @@ def check_documentation_generation_status(headers, data):
         response = requests.post(url, headers=headers, json=data, timeout=600)
         if response.status_code == 200:
             message = response.text
+            print(message)
             if message != old_status:
-                print(message)
                 old_status = message
-                count = 0
             
             count += 1
-            if count > 180: # 15 minutes
+            if count > 360: # 15 minutes
                 print("Documentation generation timed out")
                 return
             if message == "COMPLETED":
                 print("Documentation generation completed")
+                return
+            
+            if message == "FAILED":
+                print("Documentation generation FAILED")
+                # add alert to slack
                 return
         else:
             print(f"Request failed: {response.status_code}")
@@ -38,7 +42,7 @@ def check_documentation_generation_status(headers, data):
             print("Fetching documentation generation status failed")
             # send slack message to server that documentation generation failed
             return
-        time.sleep(5)
+        time.sleep(2)
 
 def main():
     required_env_vars = ['SNORKELL_API_KEY', 'SNORKELL_CLIENT_ID', 'GITHUB_REPOSITORY', 'BRANCH_NAME', 'GITHUB_SHA', 'COMMIT_MSG']
@@ -69,7 +73,7 @@ def main():
     try:
         print("Initiating documentation generation, this may take a few minutes")
         initiate_documentation_generation(headers, data)
-        # check_documentation_generation_status(headers, data)
+        check_documentation_generation_status(headers, data)
     except requests.exceptions.Timeout:
         print("Request timed out")
     except Exception as e:
