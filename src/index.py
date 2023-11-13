@@ -1,48 +1,45 @@
-import asyncio
 import os
-import aiohttp
+import requests
+import time
 
-async def initiate_documentation_generation(headers, data):
+def initiate_documentation_generation(headers, data):
     url = "https://production-gateway.snorkell.ai/api/app/github/generate/documentation"
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url, headers=headers, json=data, timeout=600) as response:
-            if response.status == 200:
-                print(await response.text())
-            else:
-                print(f"Request failed: {response.status}")
-                print(await response.text())
+    response = requests.post(url, headers=headers, json=data, timeout=600)
+    if response.status_code == 200:
+        print(response.text)
+    else:
+        print(f"Request failed: {response.status_code}")
+        print(response.text)
 
-async def check_documentation_generation_status(headers, data):
+def check_documentation_generation_status(headers, data):
     url = "https://production-gateway.snorkell.ai/api/app/github/generate/documentation/status"
-    async with aiohttp.ClientSession() as session:
-        old_status = ""
-        count = 0
-        while True:
-            async with session.post(url, headers=headers, json=data, timeout=600) as response:
-                if response.status == 200:
-                    message = await response.text()
-                    if message != old_status:
-                        print(message)
-                        old_status = message
-                        count = 0
-                    
-                    count += 1
-                    if count > 180: # 15 minutes
-                        print("Documentation generation timed out")
-                        return
-                    if message == "COMPLETED":
-                        print("Documentation generation completed")
-                        return
-                else:
-                    print(f"Request failed: {response.status}")
-                    print(await response.text())
-                    print("Fetching documentation generation status failed")
-                    # send slack message to server that documentation generation failed
-                    return
-            await asyncio.sleep(5)
+    old_status = ""
+    count = 0
+    while True:
+        response = requests.post(url, headers=headers, json=data, timeout=600)
+        if response.status_code == 200:
+            message = response.text
+            if message != old_status:
+                print(message)
+                old_status = message
+                count = 0
+            
+            count += 1
+            if count > 180: # 15 minutes
+                print("Documentation generation timed out")
+                return
+            if message == "COMPLETED":
+                print("Documentation generation completed")
+                return
+        else:
+            print(f"Request failed: {response.status_code}")
+            print(response.text)
+            print("Fetching documentation generation status failed")
+            # send slack message to server that documentation generation failed
+            return
+        time.sleep(5)
 
-async def main():
-
+def main():
     required_env_vars = ['SNORKELL_API_KEY', 'SNORKELL_CLIENT_ID', 'GITHUB_REPOSITORY', 'BRANCH_NAME', 'GITHUB_SHA', 'COMMIT_MSG']
     missing_vars = [var for var in required_env_vars if not os.getenv(var)]
 
@@ -62,14 +59,12 @@ async def main():
     }
     
     try:
-        await initiate_documentation_generation(headers, data)
-        await check_documentation_generation_status(headers, data)
-    except asyncio.TimeoutError:
+        initiate_documentation_generation(headers, data)
+        check_documentation_generation_status(headers, data)
+    except requests.exceptions.Timeout:
         print("Request timed out")
     except Exception as e:
         print(f"An error occurred: {e}")
 
-
-if __name__ == "__main__":    
-    asyncio.run(main())
-        
+if __name__ == "__main__":
+    main()
