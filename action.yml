@@ -1,6 +1,6 @@
 name: 'Snorkell DocGen Client'
 description: 'Use this GitHub Action to create documentation PR of your recent main branch merge.'
-author: 'snorkella.ai'
+author: 'snorkell.ai'
 
 outputs: {}
 
@@ -8,34 +8,30 @@ runs:
   using: 'composite'
 
   steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
-    
-    # - name: Get latest commit ID and message
-    #   run: |
-    #     COMMIT_DATA=$(curl --silent -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ inputs.owner }}/${{ inputs.repo }}/commits/${{ inputs.main_branch }}")
-    #     echo "LATEST_COMMIT_ID=$(echo "$COMMIT_DATA" | jq -r '.sha')" >> $GITHUB_ENV
-    #     echo "LATEST_COMMIT_MESSAGE=$(echo "$COMMIT_DATA" | jq -r '.commit.message')" >> $GITHUB_ENV
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.x
 
-    # - name: Set up Python
-    #   uses: actions/setup-python@v2
-    #   with:
-    #     python-version: 3.x
-
-    # - name: Install Dependencies
-    #   shell: bash
-    #   run: |
-    #     pip install requests httpx asyncio
+    - name: Install Dependencies
+      shell: bash
+      run: |
+        pip install aiohttp asyncio
+        ESCAPED_COMMIT_MSG=$(printf '%s\n' "${{ github.event.head_commit.message }}" | jq -R -s -c .)
 
     - name: Run Script
       shell: bash
-      run: |
-        BRANCH_NAME=${GITHUB_REF#refs/heads/}
-        curl -X POST -H 'api-key: ${{ secrets.SNORKELL_API_KEY }}' -H 'Content-Type: application/json' \
-        -d '{"installation_id": ${{ secrets.SNORKELL_API_KEY }}, "full_repo_name": "${{ github.repository }}", "base_branch": "${{ BRANCH_NAME }}", "commit_sha": "${{ github.sha }}", "commit_message": "${{ github.event.head_commit.message }}"}' \
-        http://localhost:8000/api/app/github/generate/documentation
+      env:
+        SNORKELL_CLIENT_ID: ${{ secrets.SNORKELL_CLIENT_ID }}
+        SNORKELL_API_KEY: ${{ secrets.SNORKELL_API_KEY }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        BRANCH_NAME: ${{ github.ref }}
+        GITHUB_SHA: ${{ github.sha }}
+        COMMIT_MSG: ${{ ESCAPED_COMMIT_MSG }}
 
-      
+      run: |
+        python src/index.py
+         
 branding:
   icon: 'upload-cloud'
   color: 'blue'
