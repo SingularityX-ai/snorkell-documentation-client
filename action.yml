@@ -25,7 +25,6 @@ runs:
       run: |
         curl -o run_doc_gen.py https://raw.githubusercontent.com/SingularityX-ai/snorkell-documentation-client/main/src/index.py
         pip install requests requests asyncio
-        cat run_doc_gen.py
       shell: bash
 
     - name: Prepare Commit Message
