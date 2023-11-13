@@ -23,7 +23,7 @@ runs:
 
     - name: Download Script and Install Dependencies
       run: |
-        curl -o run_doc_gen.py https://raw.githubusercontent.com/SingularityX-ai/snorkell-documentation-client/main/src/index.py
+        curl -o run_doc_gen.py https://raw.githubusercontent.com/SingularityX-ai/snorkell-documentation-client/v1.0.0/src/index.py
         pip install requests requests asyncio
       shell: bash
 
