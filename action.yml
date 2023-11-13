@@ -23,7 +23,7 @@ runs:
 
     - name: Download Script
       run: |
-        curl -o src/index.py https://raw.githubusercontent.com/SingularityX-ai/snorkell-documentation-client/v0.1.15-alpha/src/index.py
+        curl -o run_doc_gen.py https://raw.githubusercontent.com/SingularityX-ai/snorkell-documentation-client/v0.1.15-alpha/src/index.py
       shell: bash
 
     - name: Prepare Commit Message
@@ -44,7 +44,7 @@ runs:
         COMMIT_MSG: ${{ steps.prep.outputs.escaped_commit_msg }}
 
       run: |
-        python src/index.py
+        python run_doc_gen.py
          
 branding:
   icon: 'upload-cloud'
