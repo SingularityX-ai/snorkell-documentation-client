@@ -10,7 +10,7 @@ async def initiate_documentation_generation(headers, data):
     if response.status_code == 200:
         message_json = response.json()
         print("Documentation generation: ", message_json["message"])
-        return bool(message_json["is_request_valid"])
+        return bool(message_json["valid_request"])
     else:
         print(f"Request failed: {response.status_code}")
         print(response.text)
