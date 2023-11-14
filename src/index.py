@@ -3,17 +3,14 @@ import requests
 import asyncio
 
 
-async def initiate_documentation_generation(headers, data):
-    url = "https://production-gateway.snorkell.ai/api/app/github/generate/documentation"
-    print("Making api call to initiate documentation generation")
+async def initiate_documentation_generation(
+    headers: dict, data: dict
+) -> bool:
+    url: str = "https://production-gateway.snorkell.ai/api/app/github/generate/documentation"
     response = requests.post(url, headers=headers, json=data, timeout=600)
     if response.status_code == 200:
-        message_json = response.json()
-        print("Documentation generation: ", message_json["message"])
-        return bool(message_json["valid_request"])
+        return bool(response.json()["valid_request"])
     else:
-        print(f"Request failed: {response.status_code}")
-        print(response.text)
         raise Exception(
             "Initiating documentation generation failed with status code: ",
             response.status_code,
@@ -24,20 +21,11 @@ async def initiate_documentation_generation(headers, data):
 
 async def check_documentation_generation_status(headers, data):
     url = "https://production-gateway.snorkell.ai/api/app/github/generate/documentation/status"
-    old_status = ""
     count = 0
-    while True:
+    while count < 360:
         response = requests.post(url, headers=headers, json=data, timeout=600)
         if response.status_code == 200:
             message = response.json()
-            print("Documentation generation status: ", repr(message))
-            if message != old_status:
-                old_status = message
-            print("waiting for seconds", count * 2)
-            count += 1
-            if count > 360:  # 15 minutes
-                print("Documentation generation timed out")
-                return
             if message.strip().upper() == "COMPLETE":
                 print("Documentation generation completed")
                 return
@@ -53,6 +41,8 @@ async def check_documentation_generation_status(headers, data):
             # send slack message to server that documentation generation failed
             return
         await asyncio.sleep(2)  # Non-blocking sleep
+
+    print("Documentation generation timed out")
 
 
 async def main():
