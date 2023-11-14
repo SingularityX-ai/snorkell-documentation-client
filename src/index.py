@@ -2,15 +2,25 @@ import os
 import requests
 import asyncio
 
+
 async def initiate_documentation_generation(headers, data):
     url = "https://production-gateway.snorkell.ai/api/app/github/generate/documentation"
     print("Making api call to initiate documentation generation")
     response = requests.post(url, headers=headers, json=data, timeout=600)
     if response.status_code == 200:
-        print(response.text)
+        message_json = response.json()
+        print("Documentation generation: ", message_json["message"])
+        return bool(message_json["is_request_valid"])
     else:
         print(f"Request failed: {response.status_code}")
         print(response.text)
+        raise Exception(
+            "Initiating documentation generation failed with status code: ",
+            response.status_code,
+            " and message: ",
+            response.text,
+        )
+
 
 async def check_documentation_generation_status(headers, data):
     url = "https://production-gateway.snorkell.ai/api/app/github/generate/documentation/status"
@@ -20,18 +30,18 @@ async def check_documentation_generation_status(headers, data):
         response = requests.post(url, headers=headers, json=data, timeout=600)
         if response.status_code == 200:
             message = response.json()
-            print("Documentation generation status: ",  repr(message))
+            print("Documentation generation status: ", repr(message))
             if message != old_status:
                 old_status = message
-            print("waiting for seconds", count*2)
+            print("waiting for seconds", count * 2)
             count += 1
-            if count > 360: # 15 minutes
+            if count > 360:  # 15 minutes
                 print("Documentation generation timed out")
                 return
             if message.strip().upper() == "COMPLETE":
                 print("Documentation generation completed")
                 return
-            
+
             if message.strip().upper() == "FAILED":
                 print("Documentation generation FAILED")
                 # add alert to slack
@@ -44,40 +54,57 @@ async def check_documentation_generation_status(headers, data):
             return
         await asyncio.sleep(2)  # Non-blocking sleep
 
+
 async def main():
-    required_env_vars = ['SNORKELL_API_KEY', 'SNORKELL_CLIENT_ID', 'GITHUB_REPOSITORY', 'BRANCH_NAME', 'GITHUB_SHA', 'COMMIT_MSG']
+    required_env_vars = [
+        "SNORKELL_API_KEY",
+        "SNORKELL_CLIENT_ID",
+        "GITHUB_REPOSITORY",
+        "BRANCH_NAME",
+        "GITHUB_SHA",
+        "COMMIT_MSG",
+    ]
     missing_vars = [var for var in required_env_vars if not os.getenv(var)]
     print("Validating the inputs")
 
     if missing_vars:
-        raise ValueError(f"Missing required environment variables: {', '.join(missing_vars)}")
+        raise ValueError(
+            f"Missing required environment variables: {', '.join(missing_vars)}"
+        )
 
     print("All inputs validated")
-    
-    print("Repo Name: ", os.getenv('GITHUB_REPOSITORY'))
-    print("Branch Name: ", os.getenv('BRANCH_NAME'))
-    print("Commit SHA: ", os.getenv('GITHUB_SHA'))
-    print("Commit Message: ", os.getenv('COMMIT_MSG'))
+
+    print("Repo Name: ", os.getenv("GITHUB_REPOSITORY"))
+    print("Branch Name: ", os.getenv("BRANCH_NAME"))
+    print("Commit SHA: ", os.getenv("GITHUB_SHA"))
+    print("Commit Message: ", os.getenv("COMMIT_MSG"))
     headers = {
-        'api-key': os.getenv('SNORKELL_API_KEY'),  # Replace with your API key
-        'Content-Type': 'application/json'
+        "api-key": os.getenv("SNORKELL_API_KEY"),  # Replace with your API key
+        "Content-Type": "application/json",
     }
     data = {
-        "installation_id": os.getenv('SNORKELL_CLIENT_ID'),  # Replace with your client ID
-        "full_repo_name": os.getenv('GITHUB_REPOSITORY'),   # Replace with your repository name
-        "base_branch": os.getenv('BRANCH_NAME'),            # Replace with your branch name
-        "commit_sha": os.getenv('GITHUB_SHA'),              # Replace with your commit SHA
-        "commit_message": os.getenv('COMMIT_MSG')   # Replace with your commit message
+        "installation_id": os.getenv(
+            "SNORKELL_CLIENT_ID"
+        ),  # Replace with your client ID
+        "full_repo_name": os.getenv(
+            "GITHUB_REPOSITORY"
+        ),  # Replace with your repository name
+        "base_branch": os.getenv("BRANCH_NAME"),  # Replace with your branch name
+        "commit_sha": os.getenv("GITHUB_SHA"),  # Replace with your commit SHA
+        "commit_message": os.getenv("COMMIT_MSG"),  # Replace with your commit message
     }
-    
+
     try:
         print("Initiating documentation generation, this may take a few minutes")
-        await initiate_documentation_generation(headers, data)
+        is_valid_request = await initiate_documentation_generation(headers, data)
+        if not is_valid_request:
+            return
         await check_documentation_generation_status(headers, data)
     except requests.exceptions.Timeout:
         print("Request timed out")
     except Exception as e:
         print(f"An error occurred: {e}")
+
 
 if __name__ == "__main__":
     asyncio.run(main())
