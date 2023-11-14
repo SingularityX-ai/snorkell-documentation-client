@@ -28,6 +28,7 @@ async def check_documentation_generation_status(headers, data):
         response = requests.post(url, headers=headers, json=data, timeout=600)
         if response.status_code == 200:
             message = response.json()
+            print(message)
             if message.strip().upper() == "COMPLETE":
                 print("Documentation generation completed")
                 return
