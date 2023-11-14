@@ -29,11 +29,11 @@ async def check_documentation_generation_status(headers, data):
         if response.status_code == 200:
             message = response.json()
             print(message)
-            if message.strip().upper() == "COMPLETE":
+            if "COMPLETE" in message.strip().upper():
                 print("Documentation generation completed")
                 return
 
-            if message.strip().upper() == "FAILED":
+            if "FAILED" in message.strip().upper():
                 print("Documentation generation failed")
                 # add alert to slack
                 return
