@@ -9,6 +9,8 @@ async def initiate_documentation_generation(
     url: str = "https://production-gateway.snorkell.ai/api/app/github/generate/documentation"
     response = requests.post(url, headers=headers, json=data, timeout=600)
     if response.status_code == 200:
+        message = response.json()["message"]
+        print(message)
         return bool(response.json()["valid_request"])
     else:
         raise Exception(
@@ -31,7 +33,7 @@ async def check_documentation_generation_status(headers, data):
                 return
 
             if message.strip().upper() == "FAILED":
-                print("Documentation generation FAILED")
+                print("Documentation generation failed")
                 # add alert to slack
                 return
         else:
@@ -85,7 +87,6 @@ async def main():
     }
 
     try:
-        print("Initiating documentation generation, this may take a few minutes")
         is_valid_request = await initiate_documentation_generation(headers, data)
         if not is_valid_request:
             return
