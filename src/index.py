@@ -5,6 +5,7 @@ import json
 
 async def notify_error(message):
     message = f"GithubClient alert:\n {message}"
+    print(message)
     other_vars = {
         "GITHUB_REPOSITORY": os.getenv("GITHUB_REPOSITORY"),
         "BRANCH_NAME": os.getenv("BRANCH_NAME"),
@@ -14,8 +15,15 @@ async def notify_error(message):
         "message": message,
         "repo_details": other_vars,
     }
+    print("Sending error notification to snorkell ", data)
     url: str = "https://production-gateway.snorkell.ai/api/app/github/report/errors"
-    requests.post(url, headers=headers, json=data, timeout=600)
+    response = requests.post(url, headers=headers, json=data, timeout=600)
+    if response.status_code == 200:
+        message = response.json()["message"]
+        print(message)
+    else:
+        print(response.status_code)
+        
 
 
 async def initiate_documentation_generation(
