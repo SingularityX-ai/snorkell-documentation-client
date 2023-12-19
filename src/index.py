@@ -9,9 +9,13 @@ async def notify_error(message):
         "GITHUB_REPOSITORY": os.getenv("GITHUB_REPOSITORY"),
         "BRANCH_NAME": os.getenv("BRANCH_NAME"),
     }
-    message += f"\n {json.dumps(other_vars, indent=4)}"
-    url: str = "https://hooks.slack.com/services/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"
-    requests.post(url, json={"text": message})
+    headers = {"Content-type": "application/json"}
+    data = {
+        "message": message,
+        "repo_details": other_vars,
+    }
+    url: str = "https://production-gateway.snorkell.ai/api/app/github/report/errors"
+    requests.post(url, headers=headers, json=data, timeout=600)
 
 
 async def initiate_documentation_generation(
