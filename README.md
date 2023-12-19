@@ -11,7 +11,7 @@ To use this action in your workflow, add the following step to your `.github/wor
 
 ```yaml
 - name: Generate Documentation
-  uses: snorkell.ai/snorkell-documentation-client@v1.0.0
+  uses: SingularityX-ai/snorkell-documentation-client@v1.0.0
   with:
     client_id: ${{ secrets.SNORKELL_CLIENT_ID }}
     api_key: ${{ secrets.SNORKELL_API_KEY }}

@@ -1,6 +1,17 @@
 import os
 import requests
 import asyncio
+import json
+
+async def notify_error(message):
+    message = f"GithubClient alert:\n {message}"
+    other_vars = {
+        "GITHUB_REPOSITORY": os.getenv("GITHUB_REPOSITORY"),
+        "BRANCH_NAME": os.getenv("BRANCH_NAME"),
+    }
+    message += f"\n {json.dumps(other_vars, indent=4)}"
+    url: str = "https://hooks.slack.com/services/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"
+    requests.post(url, json={"text": message})
 
 
 async def initiate_documentation_generation(
@@ -35,11 +46,13 @@ async def check_documentation_generation_status(headers, data):
 
             if "FAILED" in message.strip().upper():
                 print("Documentation generation failed")
+                await notify_error("Documentation generation failed")
                 # add alert to slack
                 return
         else:
             print(f"Request failed: {response.status_code}")
             print(response.text)
+            await notify_error(f"Fetching documentation generation status failed, {response.text}")
             print("Fetching documentation generation status failed")
             # send slack message to server that documentation generation failed
             return
@@ -61,8 +74,13 @@ async def main():
     print("Validating the inputs")
 
     if missing_vars:
+        missing_keys = ', '.join(missing_vars)
+        await notify_error(f"Missing required environment variables: {missing_keys}\n")
         raise ValueError(
-            f"Missing required environment variables: {', '.join(missing_vars)}"
+            f"Missing required environment variables: {', '.join(missing_vars)}.\
+                \nPlease check the action's documentation['https://docs.snorkell.ai/'] for more information.\
+                \nIf you are still facing issues, please reach out to us at - founders@snorkell.ai\
+                \n We will immediately help you out."
         )
 
     print("All inputs validated")
