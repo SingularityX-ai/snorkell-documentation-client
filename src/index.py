@@ -2,6 +2,7 @@ import os
 import requests
 import asyncio
 import json
+import traceback
 
 async def notify_error(message):
     message = f"GithubClient alert:\n {message}"
@@ -9,6 +10,7 @@ async def notify_error(message):
     other_vars = {
         "GITHUB_REPOSITORY": os.getenv("GITHUB_REPOSITORY"),
         "BRANCH_NAME": os.getenv("BRANCH_NAME"),
+        "SNORKELL_CLIENT_ID": os.getenv("SNORKELL_CLIENT_ID"),
     }
     headers = {"Content-type": "application/json"}
     data = {
@@ -122,10 +124,24 @@ async def main():
         if not is_valid_request:
             return
         await check_documentation_generation_status(headers, data)
-    except requests.exceptions.Timeout:
+    except requests.exceptions.Timeout as t:
         print("Request timed out")
+        await notify_error("Request TIME_OUT "+traceback.format_exc())
+        raise t
     except Exception as e:
         print(f"An error occurred: {e}")
+        traceback.print_exc()
+        if "Could not validate credentials" in traceback.format_exc():
+            print("Invalid credentials")
+            print("To fix it")
+            print("Copy the API key from the Snorkell dashboard - https://dashboard.snorkell.ai/snorkell-api-keys")
+            print("Then go to your repository Settings -> Secrets & Variables -> Actions -> New repository secret")
+            print("Create a new secret with the name SNORKELL_API_KEY")
+            print("Paste the API key in the value field")
+            print("Rerun the action")
+            
+        await notify_error(f"An error occurred: "+traceback.format_exc())
+        raise e
 
 
 if __name__ == "__main__":
