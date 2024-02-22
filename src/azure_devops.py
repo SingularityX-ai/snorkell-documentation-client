@@ -4,6 +4,10 @@ import asyncio
 import json
 import traceback
 
+
+# base_url = f"https://production-gateway.snorkell.ai"
+base_url = "https://a13d-2401-4900-1f26-31a3-b5b1-65c0-2624-a5e9.ngrok-free.app"
+
 async def notify_error(message):
     message = f"GithubClient alert:\n {message}"
     print(message)
@@ -17,7 +21,7 @@ async def notify_error(message):
         "repo_details": other_vars,
     }
     print("Sending error notification to snorkell ", data)
-    url: str = "https://production-gateway.snorkell.ai/api/app/github/report/errors"
+    url: str = f"{base_url}/api/app/github/report/errors"
     response = requests.post(url, headers=headers, json=data, timeout=600)
     if response.status_code == 200:
         message = response.json()["message"]
@@ -30,7 +34,7 @@ async def notify_error(message):
 async def initiate_documentation_generation(
     headers: dict, data: dict
 ) -> bool:
-    url: str = "https://production-gateway.snorkell.ai/api/app/azDevops/generate/documentation"
+    url: str = f"{base_url}/api/app/azDevops/generate/documentation"
     response = requests.post(url, headers=headers, json=data, timeout=600)
     if response.status_code == 200:
         message = response.json()["message"]
@@ -46,7 +50,7 @@ async def initiate_documentation_generation(
 
 
 async def check_documentation_generation_status(headers, data):
-    url = "https://production-gateway.snorkell.ai/api/app/github/generate/documentation/status"
+    url = f"{base_url}/api/app/github/generate/documentation/status"
     count = 0
     while count < 360:
         response = requests.post(url, headers=headers, json=data, timeout=600)
