@@ -12,7 +12,8 @@ async def notify_error(message):
     message = f"GithubClient alert:\n {message}"
     print(message)
     other_vars = {
-        "GITHUB_REPOSITORY": os.getenv("GITHUB_REPOSITORY"),
+        "REPO_NAME": os.getenv("REPO_NAME"),
+        "ORG_NAME": os.getenv("ORG_NAME"),
         "BRANCH_NAME": os.getenv("BRANCH_NAME"),
     }
     headers = {"Content-type": "application/json"}
@@ -21,13 +22,13 @@ async def notify_error(message):
         "repo_details": other_vars,
     }
     print("Sending error notification to snorkell ", data)
-    # url: str = f"{base_url}/api/app/github/report/errors"
-    # response = requests.post(url, headers=headers, json=data, timeout=600)
-    # if response.status_code == 200:
-    #     message = response.json()["message"]
-    #     print(message)
-    # else:
-    #     print(response.status_code)
+    url: str = f"{base_url}/api/app/github/report/errors"
+    response = requests.post(url, headers=headers, json=data, timeout=600)
+    if response.status_code == 200:
+        message = response.json()["message"]
+        print(message)
+    else:
+        print(response.status_code)
         
 
 
@@ -52,7 +53,7 @@ async def initiate_documentation_generation(
 
 
 async def check_documentation_generation_status(headers, data):
-    url = f"{base_url}/api/app/github/generate/documentation/status"
+    url = f"{base_url}/api/app/azDevops/generate/documentation/status"
     count = 0
     while count < 360:
         response = requests.post(url, headers=headers, json=data, timeout=600)
