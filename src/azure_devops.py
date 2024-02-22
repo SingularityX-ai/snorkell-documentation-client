@@ -82,8 +82,7 @@ async def main():
         "ORG_NAME",
         "BRANCH_NAME",
         "GITHUB_SHA",
-        "COMMIT_MSG",
-        "PROJECT_ID"
+        "COMMIT_MSG"
     ]
     missing_vars = [var for var in required_env_vars if not os.getenv(var)]
     print("Validating the inputs")
@@ -117,7 +116,6 @@ async def main():
         "git_repo": {
             "repo_name": os.getenv("REPO_NAME"),  # Replace with your repository name
             "org_name": os.getenv("ORG_NAME"),  # Replace with your organization name
-            "project_id": os.getenv("PROJECT_ID"),  # Replace with your project id
         },
         "base_branch": os.getenv("BRANCH_NAME"),  # Replace with your branch name
         "commit_sha": os.getenv("GITHUB_SHA"),  # Replace with your commit SHA
