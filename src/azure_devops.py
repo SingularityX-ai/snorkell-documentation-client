@@ -9,6 +9,13 @@ from pprint import pprint
 base_url = "https://f0a8-2401-4900-1f26-31a3-b5b1-65c0-2624-a5e9.ngrok-free.app"
 
 async def notify_error(message):
+    """    Notify about an error.
+
+    Args:
+        message (str): The error message to be notified.
+            This function formats the error message and sends a notification with repository details to snorkell.
+    """
+
     message = f"GithubClient alert:\n {message}"
     print(message)
     other_vars = {
@@ -34,6 +41,19 @@ async def notify_error(message):
 async def initiate_documentation_generation(
     headers: dict, data: dict
 ) -> bool:
+    """    Initiates the generation of documentation using the provided headers and data.
+
+    Args:
+        headers (dict): The headers to be used for the request.
+        data (dict): The data to be sent in the request.
+
+    Returns:
+        bool: True if the request is valid, False otherwise.
+
+    Raises:
+        Exception: If the initiation of documentation generation fails with a non-200 status code.
+    """
+
     url: str = f"{base_url}/api/app/azDevops/generate/documentation"
     print("Initiating documentation generation")
     print("URL: ", url)
@@ -52,6 +72,16 @@ async def initiate_documentation_generation(
 
 
 async def check_documentation_generation_status(headers, data):
+    """    Check the status of documentation generation.
+
+    Args:
+        headers (dict): The headers for the request.
+        data (dict): The data to be sent in the request.
+
+    Returns:
+        None: This function does not return any value.
+    """
+
     url = f"{base_url}/api/app/github/generate/documentation/status"
     count = 0
     while count < 360:
@@ -81,6 +111,24 @@ async def check_documentation_generation_status(headers, data):
 
 
 async def main():
+    """    Validate required environment variables and initiate documentation generation.
+
+    This function validates the presence of required environment variables and initiates the documentation generation process.
+    If any required environment variable is missing, it raises a ValueError and provides instructions to resolve the issue.
+    After validating the inputs, it prints the repository name, branch name, commit SHA, and commit message.
+    It then constructs headers and data for the API request and initiates documentation generation.
+    If a timeout occurs during the request, it notifies the error and raises a requests.exceptions.Timeout.
+    If any other exception occurs, it prints the error and provides specific instructions for certain types of errors.
+
+    Returns:
+        None: If the request is not valid.
+
+    Raises:
+        ValueError: If any required environment variable is missing.
+        requests.exceptions.Timeout: If the request times out.
+        Exception: For any other unexpected exceptions.
+    """
+
     required_env_vars = [
         "PAT_TOKEN",
         "SNORKELL_API_KEY",
