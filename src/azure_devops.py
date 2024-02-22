@@ -118,7 +118,7 @@ async def main():
         "Content-Type": "application/json",
     }
     data = {
-        "pat_token": os.getenv("PAT_TOKEN"),  # Replace with your PAT token
+        "api_token": os.getenv("PAT_TOKEN"),  # Replace with your PAT token
         "git_repo": {
             "repo_name": os.getenv("REPO_NAME"),  # Replace with your repository name
             "org_name": os.getenv("ORG_NAME"),  # Replace with your organization name
