@@ -9,6 +9,15 @@ from pprint import pprint
 base_url = "https://f0a8-2401-4900-1f26-31a3-b5b1-65c0-2624-a5e9.ngrok-free.app"
 
 async def notify_error(message):
+    """    Notify error to GithubClient and send error notification to snorkell.
+
+    Args:
+        message (str): The error message to be notified.
+
+    Raises:
+        Exception: If there is an error while sending the notification.
+    """
+
     message = f"GithubClient alert:\n {message}"
     print(message)
     other_vars = {
@@ -53,6 +62,20 @@ async def initiate_documentation_generation(
 
 
 async def check_documentation_generation_status(headers, data):
+    """    Check the status of documentation generation.
+
+    Args:
+        headers (dict): The headers to be included in the request.
+        data (dict): The data to be sent in the request.
+
+    Returns:
+        None
+
+    Raises:
+        Exception: If the request fails or times out.
+        Exception: If documentation generation fails.
+    """
+
     url = f"{base_url}/api/app/azDevops/generate/documentation/status"
     count = 0
     while count < 360:
