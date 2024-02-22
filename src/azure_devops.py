@@ -9,6 +9,12 @@ import traceback
 base_url = "https://a13d-2401-4900-1f26-31a3-b5b1-65c0-2624-a5e9.ngrok-free.app"
 
 async def notify_error(message):
+    """    Notify error to GithubClient.
+
+    Args:
+        message (str): The error message to be notified.
+    """
+
     message = f"GithubClient alert:\n {message}"
     print(message)
     other_vars = {
@@ -34,6 +40,19 @@ async def notify_error(message):
 async def initiate_documentation_generation(
     headers: dict, data: dict
 ) -> bool:
+    """    Initiates the generation of documentation using the provided headers and data.
+
+    Args:
+        headers (dict): The headers to be used for the request.
+        data (dict): The data to be sent in the request.
+
+    Returns:
+        bool: True if the documentation generation request is valid, False otherwise.
+
+    Raises:
+        Exception: If the documentation generation fails with a non-200 status code, including the status code and message.
+    """
+
     url: str = f"{base_url}/api/app/azDevops/generate/documentation"
     print("Initiating documentation generation")
     print("URL: ", url)
@@ -52,6 +71,15 @@ async def initiate_documentation_generation(
 
 
 async def check_documentation_generation_status(headers, data):
+    """    Check the status of documentation generation.
+
+    Args:
+        headers (dict): The headers to be included in the request.
+        data (dict): The data to be sent in the request.
+
+        This function sends a request to check the status of documentation generation. It sends a POST request to the specified URL with the provided headers and data. It then checks the response message and prints the status of documentation generation. If the status is 'COMPLETE', it prints 'Documentation generation completed'. If the status is 'FAILED', it prints 'Documentation generation failed' and sends an error notification. If the request fails, it prints the status code and response text, and sends an error notification. It uses asyncio to sleep for 2 seconds in each iteration, and times out after 360 iterations if the documentation generation is not completed.
+    """
+
     url = f"{base_url}/api/app/github/generate/documentation/status"
     count = 0
     while count < 360:
@@ -81,6 +109,18 @@ async def check_documentation_generation_status(headers, data):
 
 
 async def main():
+    """    Validate the required environment variables and initiate documentation generation.
+
+    This function validates the required environment variables and initiates the documentation generation process.
+    If any of the required environment variables are missing, it raises a ValueError and notifies the user.
+    After validation, it prints the validated inputs and initiates the documentation generation process using the
+    provided headers and data. It also handles exceptions related to request timeouts and other general exceptions.
+
+
+    Raises:
+        ValueError: If any of the required environment variables are missing.
+    """
+
     required_env_vars = [
         "PAT_TOKEN",
         "SNORKELL_API_KEY",
