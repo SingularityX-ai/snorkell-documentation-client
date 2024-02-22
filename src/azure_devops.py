@@ -35,6 +35,8 @@ async def initiate_documentation_generation(
     headers: dict, data: dict
 ) -> bool:
     url: str = f"{base_url}/api/app/azDevops/generate/documentation"
+    print("Initiating documentation generation")
+    print("URL: ", url)
     response = requests.post(url, headers=headers, json=data, timeout=600)
     if response.status_code == 200:
         message = response.json()["message"]
