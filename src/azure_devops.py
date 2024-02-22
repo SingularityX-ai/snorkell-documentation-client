@@ -53,7 +53,7 @@ async def initiate_documentation_generation(
 
 
 async def check_documentation_generation_status(headers, data):
-    url = f"{base_url}/api/app/azDevops/generate/documentation/status"
+    url = f"{base_url}/api/app/azDevops/status/documentation"
     count = 0
     while count < 360:
         response = requests.post(url, headers=headers, json=data, timeout=600)
