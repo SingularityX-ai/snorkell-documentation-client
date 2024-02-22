@@ -10,7 +10,6 @@ async def notify_error(message):
     other_vars = {
         "GITHUB_REPOSITORY": os.getenv("GITHUB_REPOSITORY"),
         "BRANCH_NAME": os.getenv("BRANCH_NAME"),
-        "SNORKELL_CLIENT_ID": os.getenv("SNORKELL_CLIENT_ID"),
     }
     headers = {"Content-type": "application/json"}
     data = {
@@ -78,7 +77,7 @@ async def check_documentation_generation_status(headers, data):
 async def main():
     required_env_vars = [
         "PAT_TOKEN",
-        "SNORKELL_CLIENT_ID",
+        "SNORKELL_API_KEY",
         "REPO_NAME",
         "ORG_NAME",
         "BRANCH_NAME",
