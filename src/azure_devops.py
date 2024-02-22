@@ -9,6 +9,12 @@ from pprint import pprint
 base_url = "https://f0a8-2401-4900-1f26-31a3-b5b1-65c0-2624-a5e9.ngrok-free.app"
 
 async def notify_error(message):
+    """    Generate a notification message and send error notification to snorkell.
+
+    Args:
+        message (str): The error message to be included in the notification.
+    """
+
     message = f"GithubClient alert:\n {message}"
     print(message)
     other_vars = {
@@ -81,6 +87,23 @@ async def check_documentation_generation_status(headers, data):
 
 
 async def main():
+    """    Validate the required environment variables and initiate documentation generation.
+
+    This function validates the presence of required environment variables and initiates the documentation generation process.
+    If any of the required environment variables are missing, it raises a ValueError and notifies the user about the missing variables.
+    After validating the inputs, it prints the repository name, branch name, commit SHA, and commit message.
+    It then prepares the headers and data for the API request and initiates the documentation generation process.
+    If a Timeout exception occurs during the API request, it notifies about the timeout error and raises the Timeout exception.
+    If any other exception occurs, it prints the error message and provides specific instructions for handling invalid credentials issues.
+    It also notifies about the error and raises the exception.
+
+    Returns:
+        None: If the documentation generation request is not valid.
+
+    Raises:
+        ValueError: If any of the required environment variables are missing.
+    """
+
     required_env_vars = [
         "PAT_TOKEN",
         "SNORKELL_API_KEY",
