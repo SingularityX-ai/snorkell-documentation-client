@@ -3,7 +3,7 @@ import requests
 import asyncio
 import json
 import traceback
-
+from pprint import pprint
 
 # base_url = f"https://production-gateway.snorkell.ai"
 base_url = "https://f0a8-2401-4900-1f26-31a3-b5b1-65c0-2624-a5e9.ngrok-free.app"
@@ -21,13 +21,13 @@ async def notify_error(message):
         "repo_details": other_vars,
     }
     print("Sending error notification to snorkell ", data)
-    url: str = f"{base_url}/api/app/github/report/errors"
-    response = requests.post(url, headers=headers, json=data, timeout=600)
-    if response.status_code == 200:
-        message = response.json()["message"]
-        print(message)
-    else:
-        print(response.status_code)
+    # url: str = f"{base_url}/api/app/github/report/errors"
+    # response = requests.post(url, headers=headers, json=data, timeout=600)
+    # if response.status_code == 200:
+    #     message = response.json()["message"]
+    #     print(message)
+    # else:
+    #     print(response.status_code)
         
 
 
@@ -128,6 +128,7 @@ async def main():
         "commit_message": os.getenv("COMMIT_MSG"),  # Replace with your commit message
     }
 
+    pprint(data)
     try:
         is_valid_request = await initiate_documentation_generation(headers, data)
         if not is_valid_request:
