@@ -6,7 +6,7 @@ import traceback
 from pprint import pprint
 
 base_url = f"https://production-gateway.snorkell.ai"
-# base_url = "https://f0a8-2401-4900-1f26-31a3-b5b1-65c0-2624-a5e9.ngrok-free.app"
+base_url = "https://8455-2401-4900-1f26-31a3-d13d-e5fe-ee8f-f94d.ngrok-free.app/api/v1/health"
 
 async def notify_error(message):
     message = f"GithubClient alert:\n {message}"
