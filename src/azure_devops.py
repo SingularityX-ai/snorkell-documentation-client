@@ -9,6 +9,19 @@ base_url = f"https://production-gateway.snorkell.ai"
 # base_url = "https://8455-2401-4900-1f26-31a3-d13d-e5fe-ee8f-f94d.ngrok-free.app/api/v1/health"
 
 async def notify_error(message):
+    """    Notify error to GithubClient and send error notification to snorkell.
+
+    Args:
+        message (str): The error message to be notified.
+
+    Returns:
+        None
+
+    Raises:
+        ConnectionError: If there is a network issue while sending the error notification.
+        TimeoutError: If the request times out while sending the error notification.
+    """
+
     message = f"GithubClient alert:\n {message}"
     print(message)
     other_vars = {
@@ -53,6 +66,19 @@ async def initiate_documentation_generation(
 
 
 async def check_documentation_generation_status(headers, data):
+    """    Check the status of documentation generation.
+
+    Args:
+        headers (dict): The headers to be included in the request.
+        data (dict): The data to be sent in the request.
+
+    Returns:
+        None
+
+    Raises:
+        Exception: If the documentation generation fails or the request fails.
+    """
+
     url = f"{base_url}/api/app/azDevops/status/documentation"
     count = 0
     while count < 360:
