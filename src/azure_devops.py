@@ -35,6 +35,22 @@ async def notify_error(message):
 async def initiate_documentation_generation(
     headers: dict, data: dict
 ) -> bool:
+    """    Initiates the generation of documentation using the provided headers and data.
+
+    This function sends a POST request to the specified URL with the provided headers and data
+    to initiate the generation of documentation.
+
+    Args:
+        headers (dict): A dictionary containing the headers for the request.
+        data (dict): A dictionary containing the data to be sent in the request.
+
+    Returns:
+        bool: True if the request is valid, False otherwise.
+
+    Raises:
+        Exception: If the initiation of documentation generation fails with a non-200 status code.
+    """
+
     url: str = f"{base_url}/api/app/azDevops/generate/diff/doc"
     print("Initiating documentation generation")
     print("URL: ", url)
@@ -53,6 +69,21 @@ async def initiate_documentation_generation(
 
 
 async def check_documentation_generation_status(headers, data):
+    """    Check the status of documentation generation.
+
+    This function sends a request to the specified URL to check the status of documentation generation. It continues to
+    check the status at regular intervals until the process is complete or a timeout occurs.
+
+    Args:
+        headers (dict): A dictionary containing the request headers.
+        data (dict): A dictionary containing the request data in JSON format.
+
+
+    Raises:
+        RequestException: If an error occurs while sending the request.
+        asyncio.TimeoutError: If the request times out.
+    """
+
     url = f"{base_url}/api/app/azDevops/status/diff/doc"
     count = 0
     while count < 360:
