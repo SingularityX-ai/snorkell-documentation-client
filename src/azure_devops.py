@@ -35,7 +35,7 @@ async def notify_error(message):
 async def initiate_documentation_generation(
     headers: dict, data: dict
 ) -> bool:
-    url: str = f"{base_url}/api/app/azDevops/generate/documentation"
+    url: str = f"{base_url}/api/app/azDevops/generate/diff/doc"
     print("Initiating documentation generation")
     print("URL: ", url)
     response = requests.post(url, headers=headers, json=data, timeout=600)
@@ -53,7 +53,7 @@ async def initiate_documentation_generation(
 
 
 async def check_documentation_generation_status(headers, data):
-    url = f"{base_url}/api/app/azDevops/status/documentation"
+    url = f"{base_url}/api/app/azDevops/status/diff/doc"
     count = 0
     while count < 360:
         response = requests.post(url, headers=headers, json=data, timeout=600)
