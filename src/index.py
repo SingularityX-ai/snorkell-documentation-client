@@ -121,20 +121,20 @@ async def main():
     print("Branch Name: ", os.getenv("BRANCH_NAME"))
     print("Commit SHA: ", os.getenv("GITHUB_SHA"))
     print("Commit Message: ", os.getenv("COMMIT_MSG"))
+    print("Style Guide: ", os.getenv("STYLE_GUIDE"))
+
     headers = {
         "api-key": os.getenv("SNORKELL_API_KEY"),  # Replace with your API key
         "Content-Type": "application/json",
     }
+    
     data = {
-        "installation_id": os.getenv(
-            "SNORKELL_CLIENT_ID"
-        ),  # Replace with your client ID
-        "full_repo_name": os.getenv(
-            "GITHUB_REPOSITORY"
-        ),  # Replace with your repository name
+        "installation_id": os.getenv("SNORKELL_CLIENT_ID"), # Replace with your client ID
+        "full_repo_name": os.getenv("GITHUB_REPOSITORY"), # Replace with your repository name
         "base_branch": os.getenv("BRANCH_NAME"),  # Replace with your branch name
         "commit_sha": os.getenv("GITHUB_SHA"),  # Replace with your commit SHA
         "commit_message": os.getenv("COMMIT_MSG"),  # Replace with your commit message
+        "style_guide": os.getenv("STYLE_GUIDE"), # Replace with your style guide
     }
 
     try:
