@@ -14,7 +14,7 @@ inputs:
     required: true
   style_guide:
     description: "Style guide for the documentation"
-    required: true
+    required: false
 outputs: {}
 
 runs:
