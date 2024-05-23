@@ -12,6 +12,9 @@ inputs:
   branch_name:
     description: 'Base Branch for the PR'
     required: true
+  style_guide:
+    description: "Style guide for the documentation"
+    required: false
 outputs: {}
 
 runs:
@@ -45,6 +48,7 @@ runs:
         BRANCH_NAME: ${{ inputs.branch_name }}
         GITHUB_SHA: ${{ github.sha }}
         COMMIT_MSG: ${{ steps.prep.outputs.escaped_commit_msg }}
+        STYLE_GUIDE: ${{ inputs.style_guide }}
 
       run: |
         python -u run_doc_gen.py
