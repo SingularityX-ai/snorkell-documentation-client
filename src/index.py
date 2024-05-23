@@ -100,7 +100,7 @@ async def main():
         print("4. Paste the API key in the value field")
         print("5. Now create a new key with the name SNORKELL_CLIENT_ID")
         print("6. Value for SNORKELL_CLIENT_ID is the installation id of the app.")
-        print("7. Visit this link - https://github.com/apps/snorkell-ai")
+        print("7. Visit this link - https://github.com/apps/penify-dev")
         print("8. Click Install/Configure.")
         print("9. You will get the installation id in the URL.")
         print("10. Paste the installation id in the value field")
