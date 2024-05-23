@@ -76,6 +76,19 @@ async def check_documentation_generation_status(headers, data):
 
 
 async def main():
+    """    Validate the required environment variables and initiate documentation generation.
+
+    This function validates the required environment variables and initiates the documentation generation process.
+    If any of the required environment variables are missing, it raises a ValueError and provides instructions on how to resolve the issue.
+    It then proceeds to print the validated inputs and initiates the documentation generation process using the provided headers and data.
+
+    Returns:
+        None: If the documentation generation is not valid.
+
+    Raises:
+        ValueError: If any of the required environment variables are missing.
+    """
+
     required_env_vars = [
         "SNORKELL_API_KEY",
         "SNORKELL_CLIENT_ID",
