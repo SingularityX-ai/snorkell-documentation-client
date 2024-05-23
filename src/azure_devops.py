@@ -98,13 +98,13 @@ async def main():
         missing_keys = ', '.join(missing_vars)
         await notify_error(f"Missing required environment variables: {missing_keys}\n")
         print("################################################################################")
-        print("If the issue still persists, please reach out to us at support@snorkell.ai")
+        print("If the issue still persists, please reach out to us at support@penify.dev")
         print("We will immediately help you out.")
         print("################################################################################")
         raise ValueError(
             f"Missing required environment variables: {', '.join(missing_vars)}.\
-                \nPlease check the action's documentation['https://docs.snorkell.ai/'] for more information.\
-                \nIf you are still facing issues, please reach out to us at - support@snorkell.ai\
+                \nPlease check the action's documentation['https://docs.penify.dev/'] for more information.\
+                \nIf you are still facing issues, please reach out to us at - support@penify.dev\
                 \n We will immediately help you out."
         )
 
@@ -145,12 +145,12 @@ async def main():
         if "Could not validate credentials" in traceback.format_exc():
             print("####################### Invalid credentials issue #############################")
             print("If it still doesn't fix the issue, please follow the below steps:")
-            print("1. Copy the API key from the Snorkell dashboard - https://dashboard.snorkell.ai/snorkell-api-keys")
+            print("1. Copy the API key from the Snorkell dashboard - https://dashboard.penify.dev/snorkell-api-keys")
             print("2. Then go to your repository Settings -> Secrets & Variables -> Actions -> New repository secret")
             print("3. Create a new secret with the name SNORKELL_API_KEY")
             print("4. Paste the API key in the value field")
             print("5. Rerun the action")
-            print("If the issue still persists, please reach out to us at founders@snorkell.ai")
+            print("If the issue still persists, please reach out to us at founders@penify.dev")
             print("We will immediately help you out.")
             print("################################################################################")
 
